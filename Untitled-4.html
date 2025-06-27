@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>圈圈软件库</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- 自定义配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FFD700',      // 主色（金色）
+                        secondary: '#6A5ACD',    // 次色（蓝紫色）
+                        accent: '#FF69B4',       // 强调色（粉色）
+                        dark: '#121212',         // 深色背景
+                        darker: '#1A1A1A',       // 更深色背景
+                        card: '#2C2C2C',         // 卡片背景
+                        text: '#CCCCCC',         // 文本颜色
+                    },
+                    fontFamily: {
+                        sans: ['Microsoft YaHei', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .card-hover {
+                transition: all 0.3s ease;
+            }
+            .card-hover:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            }
+            .gradient-text {
+                background-clip: text;
+                -webkit-background-clip: text;
+                color: transparent;
+                background-image: linear-gradient(45deg, #FFD700, #FFB600);
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-dark text-text min-h-screen flex flex-col">
+    <!-- 顶部导航栏 -->
+    <header class="bg-darker shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="text-primary font-bold text-lg">IP记录/检测</div>
+                <div class="hidden md:block w-px h-6 bg-gray-700"></div>
+                <div class="font-bold text-2xl gradient-text">圈圈<span class="text-sm text-secondary">软件库</span></div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <button class="hidden md:flex items-center bg-primary text-dark px-4 py-2 rounded-full font-bold hover:bg-opacity-90 transition">
+                    <i class="fa fa-gift mr-2"></i>返利中心
+                </button>
+                <button class="md:hidden text-primary text-xl">
+                    <i class="fa fa-gift"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 通知栏 -->
+    <div class="bg-darker border-t border-gray-800 py-2">
+        <div class="container mx-auto px-4 flex items-center">
+            <i class="fa fa-exclamation-circle text-primary mr-2"></i>
+            <p class="text-sm">不存在任何收费内容，所有资源免费获取</p>
+            <i class="fa fa-search text-primary ml-auto"></i>
+        </div>
+    </div>
+
+    <!-- 搜索框 -->
+    <div class="bg-darker py-4">
+        <div class="container mx-auto px-4">
+            <div class="relative">
+                <input type="text" id="search-input" placeholder="输入软件名称/功能关键词搜索" 
+                       class="w-full bg-card border border-gray-700 rounded-full py-3 px-5 pl-12 focus:outline-none focus:border-primary transition">
+                <i class="fa fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+                <button id="search-btn" class="absolute right-2 top-1/2 -translate-y-1/2 bg-primary text-dark font-bold px-4 py-1.5 rounded-full hover:bg-opacity-90 transition hidden sm:block">
+                    搜索
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主导航 -->
+    <nav class="bg-darker py-3 border-y border-gray-800">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-wrap gap-2 justify-center">
+                <button class="nav-btn px-4 py-2 bg-primary text-dark font-bold rounded-lg hover:bg-opacity-90 transition">免责声明</button>
+                <button id="guide-btn" class="nav-btn px-4 py-2 bg-secondary text-white font-bold rounded-lg hover:bg-opacity-90 transition">养机教程</button>
+                <button class="nav-btn px-4 py-2 bg-accent text-white font-bold rounded-lg hover:bg-opacity-90 transition hidden sm:block">返利冲榜</button>
+                <button class="nav-btn px-4 py-2 bg-gray-700 text-white font-bold rounded-lg hover:bg-gray-600 transition hidden sm:block">邀请有礼</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow container mx-auto px-4 py-6">
+        <!-- 标签导航 -->
+        <div class="mb-6 overflow-x-auto scrollbar-hide">
+            <div class="flex space-x-2 pb-2 min-w-max">
+                <button class="tab px-4 py-2 bg-primary text-dark rounded-full font-medium hover:bg-opacity-90 transition">热门推荐</button>
+                <button class="tab px-4 py-2 bg-card text-text rounded-full font-medium hover:bg-gray-700 transition">最新上线</button>
+                <button class="tab px-4 py-2 bg-secondary text-white rounded-full font-medium hover:bg-opacity-90 transition">返利冲榜</button>
+                <button class="tab px-4 py-2 bg-accent text-white rounded-full font-medium hover:bg-opacity-90 transition">邀请有礼</button>
+                <button class="tab px-4 py-2 bg-card text-text rounded-full font-medium hover:bg-gray-700 transition hidden sm:block">热门游戏</button>
+                <button class="tab px-4 py-2 bg-card text-text rounded-full font-medium hover:bg-gray-700 transition hidden sm:block">实用工具</button>
+            </div>
+        </div>
+
+        <!-- 应用列表 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="app-list">
+            <!-- 应用卡片将通过JavaScript动态生成 -->
+        </div>
+
+        <!-- 加载更多按钮 -->
+        <div class="mt-8 text-center">
+            <button id="load-more" class="px-6 py-3 bg-card text-text border border-gray-700 rounded-full font-medium hover:bg-gray-700 transition">
+                加载更多 <i class="fa fa-chevron-down ml-1"></i>
+            </button>
+        </div>
+    </main>
+
+    <!-- 应用详情模态框 -->
+    <div id="app-modal" class="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-darker rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto transform scale-95 transition-transform duration-300">
+            <div class="relative">
+                <button id="close-modal" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl z-10">
+                    <i class="fa fa-times"></i>
+                </button>
+                
+                <div class="p-6">
+                    <div id="modal-content">
+                        <!-- 应用详情将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="bg-darker py-6 border-t border-gray-800 mt-8">
+        <div class="container mx-auto px-4 text-center text-sm text-gray-500">
+            <p>圈圈软件库 © 2025 版权所有</p>
+            <p class="mt-2">本站内容均为免费分享，仅供学习交流使用</p>
+        </div>
+    </footer>
+
+    <script>
+        // 应用数据（修复了所有对象属性间的逗号缺失问题，并补充完整）
+        const appData = [
+            {
+                id: 1,
+                name: "小金牛短剧",
+                icon: "images/icon1.png",
+                platform: "安卓",
+                subsidy: "10%",
+                rating: 4.8,
+                downloads: "100万+",
+                description: "小金牛短剧是一款专注于短剧内容的应用，用户可以观看各种精彩的短剧，轻松赚取奖励。",
+                features: [
+                    "丰富的短剧内容，每日更新",
+                    "观看视频即可获得奖励",
+                    "简单的操作方式，轻松上手",
+                    "支持提现，奖励真实有效"
+                ],
+                updateTime: "2025-06-14 10:30:25",
+                downloadUrl: "http://fge-wei2.duo2.wanbest.cn/s/2XTEYr?loc=7"
+            },
+            {
+                id: 2,
+                name: "玩赚部落",
+                icon: "images/icon2.png",
+                platform: "安卓",
+                subsidy: "10%",
+                rating: 4.6,
+                downloads: "80万+",
+                description: "玩赚部落通过完成平台任务获得收益，任务类型多样，如观看视频、试玩游戏、填写问卷等。",
+                features: [
+                    "多种任务类型，收益方式多样",
+                    "新用户注册即送红包奖励",
+                    "等级制度，等级越高收益越高",
+                    "邀请好友，双方都能获得额外奖励"
+                ],
+                updateTime: "2025-06-13 15:45:12",
+                downloadUrl: "https://sdk.wanzhuanbuluo.cn/s/w4yWg"
+            },
+            {
+                id: 3,
+                name: "简玩短视频",
+                icon: "images/icon3.webp",
+                platform: "安卓",
+                subsidy: "10%",
+                rating: 4.7,
+                downloads: "120万+",
+                description: "简玩短视频通过观看短视频获取金币奖励，金币可兑换成现金提现。",
+                features: [
+                    "海量短视频内容，涵盖多种类型",
+                    "签到奖励，每日登录有惊喜",
+                    "新手任务，帮助快速积累金币",
+                    "邀请好友，双方获得金币奖励"
+                ],
+                updateTime: "2025-06-14 09:15:38",
+                downloadUrl: "http://dsjkh069.oss-cn-shanghai.aliyuncs.com/full/?shareKey=vy0jo9iq1a&cid=10317_313&appId=10028&devId=335366&memberId=283007&deviceId=c1686ea94bbb4529a0906e211ee74dca&packageName=com.sajd.ijsa&inviteCode=8F4687BF1839E48F1AB700485DAB5EED&loc=8&shortKey=uNw4fMi59fa13"
+            },
+            {
+                id: 4,
+                name: "幻域大陆",
+                icon: "images/icon4.png",
+                platform: "安卓、苹果",
+                subsidy: "10%",
+                rating: 4.9,
+                downloads: "60万+",
+                description: "幻域大陆是一款融合角色扮演与收益功能的游戏应用，在虚拟世界中探索冒险，完成任务获取收益。",
+                features: [
+                    "丰富的游戏任务和副本",
+                    "公会系统，社交互动与收益共享",
+                    "装备交易，自由买卖获取收益",
+                    "多平台支持，随时随地畅玩"
+                ],
+                updateTime: "2025-06-12 18:20:45",
+                downloadUrl: "https://i2c1qhyseeil.huanyuhy.cn/YaoQinWeb/?share=420596976"
+            },
+            {
+                id: 5,
+                name: "亿启赚",
+                icon: "images/icon5.png",
+                platform: "安卓",
+                subsidy: "10%",
+                rating: 4.5,
+                downloads: "50万+",
+                description: "亿启赚通过完成推广任务获得佣金，提供多种推广渠道和方式，自由选择适合自己的推广方式。",
+                features: [
+                    "多种推广项目，收益可观",
+                    "详细的推广数据分析",
+                    "邀请奖励机制，分享收益",
+                    "专业的推广指导与支持"
+                ],
+                updateTime: "2025-06-11 21:30:15",
+                downloadUrl: "#"
+            },
+            {
+                id: 6,
+                name: "快乐速算",
+                icon: "images/icon6.png",
+                platform: "安卓、苹果",
+                subsidy: "10%",
+                rating: 4.7,
+                downloads: "75万+",
+                description: "快乐速算是一款结合益智答题与收益的应用，通过解答速算题目获取积分，积分兑换现金或奖品。",
+                features: [
+                    "不同难度等级的题目",
+                    "排行榜与成就系统",
+                    "每日签到奖励",
+                    "邀请好友，共同进步"
+                ],
+                updateTime: "2025-06-10 14:05:22",
+                downloadUrl: "http://linka.yiyouplay.com/h5/Download.php?param=843228/com.yiyou.ceping/5775946"
+            },
+            {
+                id: 7,
+                name: "金小马",
+                icon: "images/icon7.png",
+                platform: "安卓、苹果",
+                subsidy: "10%",
+                rating: 4.6,
+                downloads: "90万+",
+                description: "金小马通过观看广告、完成任务获取收益，提供丰富广告和任务类型，会员享受更高收益比例。",
+                features: [
+                    "海量广告任务，收益稳定",
+                    "会员专属任务与更高收益",
+                    "邀请好友，获得额外奖励",
+                    "便捷的提现方式"
+                ],
+                updateTime: "2025-06-09 16:20:10",
+                downloadUrl: "https://and.kanyiyou.com/h5/Download.php?param=10114584/com.yiwan.dundun/10114584"
+            },
+            {
+                id: 8,
+                name: "有米剧场",
+                icon: "images/icon8.webp",
+                platform: "安卓",
+                subsidy: "10%",
+                rating: 4.7,
+                downloads: "110万+",
+                description: "有米剧场通过观看短剧获取金币奖励，金币兑换现金提现，每天更新大量短剧。",
+                features: [
+                    "多种题材的短剧内容",
+                    "签到奖励与新手福利",
+                    "清晰的收益计算方式",
+                    "便捷的提现流程"
+                ],
+                updateTime: "2025-06-08 11:45:30",
+                downloadUrl: "https://sdk.wanzhuanbuluo.cn/s/47cMJ"
+            },
+            {
+                id: 9,
+                name: "河大卫剧场",
+                icon: "images/icon9.png",
+                platform: "安卓",
+                subsidy: "10%",
+                rating: 4.5,
+                downloads: "85万+",
+                description: "河大卫剧场通过观看广告获得金豆奖励，金豆兑换现金，广告时长短，观看体验流畅。",
+                features: [
+                    "广告时长短，收益快",
+                    "邀请奖励机制",
+                    "多样的广告类型",
+                    "支持双平台，覆盖更广"
+                ],
+                updateTime: "2025-06-07 19:10:45",
+                downloadUrl: "http://lygc.weishiyunting.com/#/?inviteCode=4IR6NGJHRIQREN2B&channelSign=hdwjcjxb"
+            },
+            {
+                id: 10,
+                name: "渝视界",
+                icon: "images/icon10.png",
+                platform: "安卓",
+                subsidy: "10%",
+                rating: 4.4,
+                downloads: "70万+",
+                description: "重庆卫视旗下",
+                features: [
+                    "广告时长短，收益快",
+                    "邀请奖励机制",
+                    "多样的广告类型"
+                ],
+                updateTime: "2025-06-06 14:30:20",
+                downloadUrl: "http://ysjjcjxb.weishiyunting.com/H5/index.html?origin=&channelSign=ysjjcjxb&inviteCode=M7CUVAIBHZKC6PW3&timeout=Thu%20Jun%2012%202025%2012:31:19%20GMT+0800%20(%E4%B8%AD%E5%9B%BD%E6%A0%87%E5%87%86%E6%97%B4%E9%97%B4)"
+            },
+            {
+                id: 11,
+                name: "短剧乐园",
+                icon: "images/icon11.png",
+                platform: "安卓",
+                subsidy: "10%",
+                rating: 4.6,
+                downloads: "95万+",
+                description: "广告收益高",
+                features: [
+                    "广告时长短，收益快",
+                    "邀请奖励机制",
+                    "多样的广告类型",
+                    "支持双平台，覆盖更广"
+                ],
+                updateTime: "2025-06-05 17:20:15",
+                downloadUrl: "http://lygc.weishiyunting.com/#/?inviteCode=4IR6NGJHRIQREN2B&channelSign=hdwjcjxb"
+            },
+            {
+                id: 12,
+                name: "疯狂夺宝",
+                icon: "images/icon12.png",
+                platform: "安卓",
+                subsidy: "10%",
+                rating: 4.3,
+                downloads: "65万+",
+                description: "补贴福利中",
+                features: [
+                    "广告时长短，收益快",
+                    "邀请奖励机制",
+                    "多样的广告类型"
+                ],
+                updateTime: "2025-06-04 10:15:50",
+                downloadUrl: "https://ndyuser.api.kebik.cn/share/download/redirect?code=1731210&app_id=6003&token=20088231"
+            }
+        ];
+
+        // 渲染应用列表
+        function renderAppList(apps) {
+            const appListElement = document.getElementById('app-list');
+            appListElement.innerHTML = '';
+            
+            apps.forEach(app => {
+                const appCard = document.createElement('div');
+                appCard.className = 'bg-card rounded-xl overflow-hidden shadow-lg card-hover';
+                appCard.dataset.id = app.id;
+                
+                appCard.innerHTML = `
+                    <div class="relative">
+                        <img src="${app.icon}" alt="${app.name}" class="w-full h-48 object-cover" onError="this.src='https://picsum.photos/400/300?random=${app.id}'; this.alt='应用默认图片'">
+                        <div class="absolute top-2 left-2 bg-secondary text-white text-xs px-2 py-1 rounded">
+                            补贴${app.subsidy}
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-lg text-white">${app.name}</h3>
+                            <span class="text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full">
+                                ${app.platform}
+                            </span>
+                        </div>
+                        <div class="flex items-center text-sm text-gray-400 mb-3">
+                            <div class="flex items-center mr-3">
+                                <i class="fa fa-star text-yellow-400 mr-1"></i>
+                                <span>${app.rating}</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fa fa-download mr-1"></i>
+                                <span>${app.downloads}</span>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-300 mb-4 line-clamp-2">${app.description}</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-gray-500">更新时间: ${app.updateTime}</span>
+                            <button class="view-details px-3 py-1.5 bg-primary text-dark rounded-lg text-sm font-medium hover:bg-opacity-90 transition">
+                                查看详情
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                appListElement.appendChild(appCard);
+            });
+            
+            // 绑定查看详情按钮事件
+            document.querySelectorAll('.view-details').forEach(button => {
+                button.addEventListener('click', () => {
+                    const appId = parseInt(button.closest('.card-hover').dataset.id);
+                    showAppDetails(appId);
+                });
+            });
+        }
+
+        // 显示应用详情
+        function showAppDetails(appId) {
+            const app = appData.find(app => app.id === appId);
+            if (!app) return;
+            
+            const modalContent = document.getElementById('modal-content');
+            modalContent.innerHTML = `
+                <div class="flex flex-col md:flex-row gap-6">
+                    <div class="md:w-1/3">
+                        <img src="${app.icon}" alt="${app.name}" class="w-full h-auto rounded-xl" onError="this.src='https://picsum.photos/400/300?random=${app.id}'; this.alt='应用默认图片'">
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            <span class="inline-block bg-secondary text-white text-xs px-2 py-1 rounded-full">
+                                补贴${app.subsidy}
+                            </span>
+                            <span class="inline-block bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
+                                ${app.platform}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="md:w-2/3">
+                        <h2 class="text-2xl font-bold text-white mb-2">${app.name}</h2>
+                        <div class="flex items-center text-sm text-gray-400 mb-4">
+                            <div class="flex items-center mr-4">
+                                <i class="fa fa-star text-yellow-400 mr-1"></i>
+                                <span>${app.rating}</span>
+                            </div>
+                            <div class="flex items-center mr-4">
+                                <i class="fa fa-download mr-1"></i>
+                                <span>${app.downloads}</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fa fa-clock-o mr-1"></i>
+                                <span>${app.updateTime}</span>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <h3 class="font-bold text-white mb-1">应用简介</h3>
+                            <p class="text-gray-300">${app.description}</p>
+                        </div>
+                        <div class="mb-6">
+                            <h3 class="font-bold text-white mb-2">主要功能</h3>
+                            <ul class="text-gray-300 space-y-1 pl-5 list-disc">
+                                ${app.features.map(feature => `<li>${feature}</li>`).join('')}
+                            </ul>
+                        </div>
+                        <a href="${app.downloadUrl}" class="block w-full py-3 bg-primary text-dark font-bold rounded-lg text-center hover:bg-opacity-90 transition" target="_blank">
+                            立即安装
+                        </a>
+                    </div>
+                </div>
+            `;
+            
+            // 显示模态框
+            const modal = document.getElementById('app-modal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.querySelector('div').classList.remove('scale-95');
+            modal.querySelector('div').classList.add('scale-100');
+            
+            // 阻止背景滚动
+            document.body.style.overflow = 'hidden';
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            const modal = document.getElementById('app-modal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modal.querySelector('div').classList.remove('scale-100');
+            modal.querySelector('div').classList.add('scale-95');
+            
+            // 恢复背景滚动
+            document.body.style.overflow = '';
+        }
+
+        // 搜索功能
+        function searchApps(keyword) {
+            if (!keyword.trim()) {
+                renderAppList(appData);
+                return;
+            }
+            
+            const lowerKeyword = keyword.toLowerCase();
+            const results = appData.filter(app => 
+                app.name.toLowerCase().includes(lowerKeyword) ||
+                app.description.toLowerCase().includes(lowerKeyword) ||
+                app.features.some(feature => feature.toLowerCase().includes(lowerKeyword))
+            );
+            
+            if (results.length === 0) {
+                alert('未找到匹配的软件，请尝试其他关键词！');
+                renderAppList(appData);
+            } else {
+                renderAppList(results);
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 渲染应用列表
+            renderAppList(appData);
+            
+            // 绑定搜索按钮事件
+            document.getElementById('search-btn').addEventListener('click', () => {
+                const searchInput = document.getElementById('search-input');
+                searchApps(searchInput.value);
+            });
+            
+            // 绑定搜索输入框回车事件
+            document.getElementById('search-input').addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    searchApps(e.target.value);
+                }
+            });
+            
+            // 绑定关闭模态框事件
+            document.getElementById('close-modal').addEventListener('click', closeModal);
+            
+            // 点击模态框背景关闭
+            document.getElementById('app-modal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('app-modal')) {
+                    closeModal();
+                }
+            });
+            
+            // 绑定养机教程按钮事件
+            document.getElementById('guide-btn').addEventListener('click', () => {
+                window.open('https://space.bilibili.com/486858236', '_blank');
+            });
+            
+            // 加载更多按钮事件
+            document.getElementById('load-more').addEventListener('click', () => {
+                // 这里可以实现加载更多应用的逻辑
+                alert('已经加载全部应用！');
+            });
+        });
+    </script>
+</body>
+</html>
+    
